@@ -17,6 +17,7 @@ skaffold.yaml  # Skaffold 설정 파일
 로그 생성기 (producer) 는 아래와 같은 가상의 로그를 발생시킨다 (기본 100개).
 
 ```json
+{"user_id": "ID29938", "timestamp": 1688460924.2553785, "datetime": "2023-07-04 08:55:24.255", "log_level": "ERROR", "message": "Choose this best true white movie Democrat major Democrat wide seat race."}
 ```
 
 ## filterkey 예제
