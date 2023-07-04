@@ -62,7 +62,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}-producer
           image: '{{ include "kse.image" .Values.producer.image }}'
-          imagePullPolicy: {{ .Values.producer.imagePullPolicy }}
+          imagePullPolicy: IfNotPresent
           command: ["python"]
           args: ["-u", "producer.py"]
           env:

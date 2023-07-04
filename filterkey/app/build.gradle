@@ -14,6 +14,6 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'keyed.App'
+    mainClass = 'filterkey.App'
 }
 

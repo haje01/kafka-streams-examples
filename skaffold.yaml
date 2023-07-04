@@ -5,8 +5,8 @@ build:
   artifacts:
   - image: kse-producer
     context: producer
-  - image: kse-keyed
-    context: keyed
+  - image: kse-filterkey
+    context: filterkey
 
 deploy: 
   helm:
@@ -15,16 +15,19 @@ deploy:
       chartPath: helm
       skipBuildDependencies: true
       setValueTemplates:
-        keyed.image.registry: '{{ .IMAGE_DOMAIN_kse_keyed }}'
-        keyed.image.repository: '{{ .IMAGE_REPO_NO_DOMAIN_kse_keyed }}'
-        keyed.image.tag: '{{ .IMAGE_TAG_kse_keyed }}'
+        producer.image.registry: '{{ .IMAGE_DOMAIN_kse_producer }}'
+        producer.image.repository: '{{ .IMAGE_REPO_NO_DOMAIN_kse_producer }}'
+        producer.image.tag: '{{ .IMAGE_TAG_kse_producer }}'
+        filterkey.image.registry: '{{ .IMAGE_DOMAIN_kse_filterkey }}'
+        filterkey.image.repository: '{{ .IMAGE_REPO_NO_DOMAIN_kse_filterkey }}'
+        filterkey.image.tag: '{{ .IMAGE_TAG_kse_filterkey }}'
 
 profiles:
-- name: keyed 
+- name: filterkey 
   patches: 
   - op: add 
     path: /deploy/helm/releases/0/valuesFiles 
     value: 
-    - configs/keyed.yaml
+    - configs/filterkey.yaml
 
   

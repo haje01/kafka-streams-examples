@@ -12,9 +12,10 @@ producer:
     tag: 0.0.1
   type: none
 
-keyed:
+filterkey:
+  replicas: 2
   image:
     registry: ""
-    repository: "library/kse-keyed"
+    repository: "library/kse-filterkey"
     tag: 0.0.1
   replicaCount: 1
