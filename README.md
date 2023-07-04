@@ -12,17 +12,45 @@ producer/      # 가짜 로그 생성기
 skaffold.yaml  # Skaffold 설정 파일
 ```
 
-## 로그 생성기 
+## 변수값 
 
-로그 생성기 (`producer`) 는 아래와 같은 가상의 로그를 발생시킨다 (기본 100개).
+Helm 차트 기본 변수값은 아래와 같다. 
+
+```yaml
+kafka: 
+  # 토픽 기본 파티션 수
+  numPartitions: 2
+  srcTopic: default-src
+  sinkTopic: default-sink
+
+producer:
+  enabled: true
+  image:
+    registry: ""
+    repository: "library/kse-producer"
+    tag: 0.0.1
+  type: none
+
+filterkey:
+  replicas: 2
+  image:
+    registry: ""
+    repository: "library/kse-filterkey"
+    tag: 0.0.1
+  replicaCount: 1
+```
+
+## 로그 생성기 (producer)
+
+로그 생성기는 대상 토픽에 아래와 같은 가상의 로그를 발생시킨다 (기본 100개).
 
 ```json
 {"user_id": "ID29938", "timestamp": 1688460924.2553785, "datetime": "2023-07-04 08:55:24.255", "log_level": "WARN", "message": "Choose this best true white movie Democrat major Democrat wide seat race."}
 ```
 
-로그 레벨 (`log_level`) 은 `INFO`, `WARN`, `ERROR` 의 세 가지 종류이다.
+- 로그 레벨 (`log_level`) 은 `INFO`, `WARN`, `ERROR` 의 세 가지 종류이다.
 
-## filterkey 예제
+## 필터 + 키 (filterkey) 예제
 
 - 소스 토픽 (`filterkey-src`) 에는 JSON 형태의 문자열인 메시지가 있음
 - 그것을 읽어와 JSON 으로 파싱 후
