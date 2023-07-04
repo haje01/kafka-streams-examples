@@ -1,6 +1,6 @@
 # kafka-streams-examples
 
-쿠버네티스 환경에서 Kafka Streams 예제를 보여준다.
+쿠버네티스 환경에서 Kafka Streams 예제들을 보여준다.
 
 폴더 구조는 아래와 같다.
 
