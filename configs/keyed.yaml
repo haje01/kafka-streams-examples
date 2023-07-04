@@ -1,0 +1,6 @@
+kafka:
+  srcTopic: keyed-src  
+  sinkTopic: keyed-sink
+
+producer:
+  type: keyed

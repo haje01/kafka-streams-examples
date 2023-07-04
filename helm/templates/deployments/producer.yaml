@@ -1,0 +1,87 @@
+# Genlog
+{{- if .Values.producer.enabled }}
+{{- $topic := (include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) ) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kse.fullname" . }}-producer
+  labels:
+    {{- include "kse.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.producer.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: ccs-producer
+      {{- include "kse.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.producer.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app.kubernetes.io/component: ccs-producer
+        {{- include "kse.selectorLabels" . | nindent 8 }}
+    spec:
+      initContainers:
+      - name: create-topic
+        image: bitnami/kafka:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - bash 
+        - -c 
+        - |
+          sleep 10
+          while true; do
+            # wait for kafka to be ready
+            EXISTING_TOPICS=$(kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --list 2> /dev/null)
+            if [ $? -ne 0 ]; then
+              echo "Failed to fetch topic list. retrying..."
+              sleep 5
+              continue
+            fi
+
+            # check if topic already exists
+            if echo $EXISTING_TOPICS | grep -w "{{ $topic }}" > /dev/null; then
+              echo "Topic '{{ $topic }}' already exists."
+              exit 0
+            else
+              echo "Topic '{{ $topic }}' does not exist. creating..."
+            fi
+
+            # create topic
+            kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --create --topic {{ $topic }} 2> /dev/null
+            if [ $? -eq 0 ]; then
+              echo "Topic '{{ $topic }}' creation successful."
+              exit 0
+            else
+              echo "Topic creation failed, retrying..."
+              sleep 5             
+            fi
+          done
+      containers:
+        - name: {{ .Chart.Name }}-producer
+          image: '{{ include "kse.image" .Values.producer.image }}'
+          imagePullPolicy: {{ .Values.producer.imagePullPolicy }}
+          command: ["python"]
+          args: ["-u", "producer.py"]
+          env:
+          - name: KAFKA_BROKER
+            value: {{ .Release.Name }}-kafka-headless:9092
+          - name: KAFKA_TOPIC
+            value: {{ include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) }}
+          - name: PROD_TYPE
+            value: {{ .Values.producer.type }}
+      {{- with .Values.producer.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.producer.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.producer.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

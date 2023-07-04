@@ -1,0 +1,30 @@
+apiVersion: skaffold/v4beta3 
+kind: Config 
+
+build: 
+  artifacts:
+  - image: kse-producer
+    context: producer
+  - image: kse-keyed
+    context: keyed
+
+deploy: 
+  helm:
+    releases:
+    - name: kse
+      chartPath: helm
+      skipBuildDependencies: true
+      setValueTemplates:
+        keyed.image.registry: '{{ .IMAGE_DOMAIN_kse_keyed }}'
+        keyed.image.repository: '{{ .IMAGE_REPO_NO_DOMAIN_kse_keyed }}'
+        keyed.image.tag: '{{ .IMAGE_TAG_kse_keyed }}'
+
+profiles:
+- name: keyed 
+  patches: 
+  - op: add 
+    path: /deploy/helm/releases/0/valuesFiles 
+    value: 
+    - configs/keyed.yaml
+
+  
