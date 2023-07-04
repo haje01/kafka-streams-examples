@@ -25,6 +25,7 @@ skaffold.yaml  # Skaffold 설정 파일
 - 그것을 읽어와 JSON 으로 파싱 후
 - 특정 필드의 값이 조건에 맞는 (`log_level` 이 `ERROR` 인) 것만 선택하고
 - 지정된 필드 (`user_id`) 를 Key 로 싱크 토픽 (`filterkey-sink`) 에 저장
+- 기본 `replicas` 값은 `2`
 
 개발용 실행 
 ```bash
