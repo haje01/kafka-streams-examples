@@ -15,6 +15,12 @@ producer/      # 가짜 로그 생성기
 skaffold.yaml  # Skaffold 설정 파일
 ```
 
+`filterkey` 가 하나의 스트림즈 앱 예제이다. 앞으로 다음과 같은 스트림즈 예제가 추가될 수 있다.
+- 스트림 - 스트림을 조인하는 `joinstrstr`
+- 스트림 - 테이블을 조인하는 `joinstrtbl`
+- 테이블 - 테이블을 조인하는 `jointbltbl`
+- 스트림 - 전역 테이블을 조인하는 `joinstrgtbl`
+
 ## 변수값 
 
 Helm 차트 기본 변수값은 아래와 같다. 
@@ -57,6 +63,7 @@ filterkey:
 ```
 
 - 로그 레벨 (`log_level`) 은 `INFO`, `WARN`, `ERROR` 의 세 가지 종류이다.
+- 로그 생성기는 매 예제별로 따로 만들 필요가 없을 듯 하여 `type` 정보를 통해 예제 앱이 필요로 하는 로그 패턴을 생성하도록 구현한다.
 
 ## 필터 + 키 (filterkey) 예제
 
