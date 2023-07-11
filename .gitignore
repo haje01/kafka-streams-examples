@@ -9,3 +9,4 @@ build
 .gitattributes
 .vscode
 helm/charts
+target/

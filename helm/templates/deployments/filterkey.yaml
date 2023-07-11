@@ -73,7 +73,7 @@ spec:
           env:
           - name: KAFKA_BROKER
             value: {{ .Release.Name }}-kafka-headless:9092
-          - name: KAFKA_SRC_TOPIC
+          - name: KAFKA_SOURCE_TOPIC
             value: {{ include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) }}
           - name: KAFKA_SINK_TOPIC
             value: {{ include "kse.tplvalues.render" ( dict "value" .Values.kafka.sinkTopic "context" $) }}

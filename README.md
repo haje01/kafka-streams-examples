@@ -39,7 +39,7 @@ producer:
   image:
     registry: ""
     repository: "library/kse-producer"
-    tag: 0.0.1
+    tag: 0.0.2
   # 로그 생성 타입
   type: none
 
@@ -50,7 +50,7 @@ filterkey:
   image:
     registry: ""
     repository: "library/kse-filterkey"
-    tag: 0.0.1
+    tag: 0.0.2
 
 ```
 
