@@ -8,7 +8,9 @@ build:
   - image: kse-filterkey
     context: filterkey
 
-deploy: 
+deploy:
+  # Kafka 브로커 안정화될 때가지 몇 번의 에러가 발생하기에 실패를 허용하고, 데드라인까지 기다림
+  tolerateFailuresUntilDeadline: true 
   helm:
     releases:
     - name: kse

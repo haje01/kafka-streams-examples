@@ -1,16 +1,17 @@
 #
 # 빌드 단계 
 #
-FROM gradle:8.1.1-jdk11 as build 
+FROM maven:3.8.1-openjdk-11-slim as build 
 WORKDIR /app
-COPY . .
-RUN gradle installDist
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn package -DskipTests
 
 #
 # 패키지 단계
 #
 FROM openjdk:11-jre-slim
 WORKDIR /app 
-COPY --from=build /app/app/build/install/app . 
-CMD ["bin/app"]
-
+COPY --from=build /app/target/kse-filterkey-0.0.2-SNAPSHOT.jar .
+CMD ["java", "-jar", "kse-filterkey-0.0.2-SNAPSHOT.jar"]
