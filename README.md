@@ -3,7 +3,9 @@
 쿠버네티스 환경에서 Kafka Streams 예제들을 보여준다. 
 - 자체 Kafka 클러스터 환경
 - 가상의 로그 생성기 
-- Gradle 로 Java 코드 빌드 및 의존성 해결 
+- Maven 으로 Java 코드 빌드 및 의존성 해결 
+- SLF4J + Logback 으로 로깅
+- JUnit 으로 단위 테스트 
 
 폴더 구조는 아래와 같다.
 
