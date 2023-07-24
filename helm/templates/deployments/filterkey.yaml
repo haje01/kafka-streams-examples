@@ -1,5 +1,6 @@
+{{- if .Values.filterkey.enabled }}
 {{- $src_topic := (include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) ) }}
-{{- $sink_topic := (include "kse.tplvalues.render" ( dict "value" .Values.kafka.sinkTopic "context" $) ) }}
+{{- $sink_topic := (include "kse.tplvalues.render" ( dict "value" .Values.filterkey.sinkTopic "context" $) ) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -76,7 +77,7 @@ spec:
           - name: KAFKA_SOURCE_TOPIC
             value: {{ include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) }}
           - name: KAFKA_SINK_TOPIC
-            value: {{ include "kse.tplvalues.render" ( dict "value" .Values.kafka.sinkTopic "context" $) }}
+            value: {{ include "kse.tplvalues.render" ( dict "value" .Values.filterkey.sinkTopic "context" $) }}
           resources:
             {{- toYaml .Values.filterkey.resources | nindent 12 }}
       {{- with .Values.filterkey.nodeSelector }}
@@ -91,3 +92,4 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
