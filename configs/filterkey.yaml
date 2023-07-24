@@ -1,6 +1,2 @@
-kafka:
-  srcTopic: filterkey-src  
-  sinkTopic: filterkey-sink
-
-producer:
-  type: filterkey
+filterkey:
+  enabled: true

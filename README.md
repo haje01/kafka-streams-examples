@@ -12,16 +12,19 @@
 ```bash
 configs/       # 프로파일별 설정 파일들
 helm/          # Helm 차트
-filterkey/     # filter + key 예제
+filterkey/     # 필터링 + 키지정 예제
+hashsplit/     # 해슁 + 스트림 분리 예제 
 producer/      # 가짜 로그 생성기
 skaffold.yaml  # Skaffold 설정 파일
 ```
 
-`filterkey` 가 하나의 스트림즈 앱 예제이다. 앞으로 다음과 같은 스트림즈 예제가 추가될 수 있다.
-- 스트림 - 스트림을 조인하는 `joinstrstr`
-- 스트림 - 테이블을 조인하는 `joinstrtbl`
-- 테이블 - 테이블을 조인하는 `jointbltbl`
-- 스트림 - 전역 테이블을 조인하는 `joinstrgtbl`
+`filterkey` 와 `hashsplit` 이 각각 하나의 스트림즈 앱 예제이다. 
+
+> 앞으로 다음과 같은 스트림즈 예제가 추가될 수 있다.
+> - 스트림 - 스트림을 조인하는 `joinstrstr`
+> - 스트림 - 테이블을 조인하는 `joinstrtbl`
+> - 테이블 - 테이블을 조인하는 `jointbltbl`
+> - 스트림 - 전역 테이블을 조인하는 `joinstrgtbl`
 
 ## 변수값 
 
@@ -41,7 +44,7 @@ producer:
   image:
     registry: ""
     repository: "library/kse-producer"
-    tag: 0.0.2
+    tag: 0.0.3
   # 로그 생성 타입
   type: none
 
@@ -52,7 +55,16 @@ filterkey:
   image:
     registry: ""
     repository: "library/kse-filterkey"
-    tag: 0.0.2
+    tag: 0.0.3
+
+# hashsplit 예제 설정 
+hashsplit:
+  # 파드 수
+  replicas: 1
+  image:
+    registry: ""
+    repository: "library/kse-hashsplit"
+    tag: 0.0.3
 
 ```
 

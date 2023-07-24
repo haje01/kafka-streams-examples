@@ -13,5 +13,5 @@ RUN mvn package -DskipTests
 #
 FROM openjdk:11-jre-slim
 WORKDIR /app 
-COPY --from=build /app/target/kse-filterkey-0.0.3-SNAPSHOT.jar .
-CMD ["java", "-jar", "kse-filterkey-0.0.3-SNAPSHOT.jar"]
+COPY --from=build /app/target/kse-hashsplit-0.0.3-SNAPSHOT.jar .
+CMD ["java", "-jar", "kse-hashsplit-0.0.3-SNAPSHOT.jar"]
