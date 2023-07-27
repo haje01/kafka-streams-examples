@@ -3,6 +3,7 @@ kafka:
   # 토픽 기본 파티션 수
   numPartitions: 2
   srcTopic: default-src
+  srcTopic2: ""
 
 # 로그 생성기 설정
 producer:
@@ -10,11 +11,11 @@ producer:
   image:
     registry: ""
     repository: "library/kse-producer"
-    tag: 0.0.3
+    tag: 0.0.4
   # 로그 생성 타입
   type: default
 
-# filterkey 예제 설정 
+# filterkey 예제 
 filterkey:
   enabled: false
   # 파드 수
@@ -22,10 +23,10 @@ filterkey:
   image:
     registry: ""
     repository: "library/kse-filterkey"
-    tag: 0.0.3
+    tag: 0.0.4
   sinkTopic: filterkey-sink
 
-# hashsplit 예제 설정 
+# hashsplit 예제 
 hashsplit:
   enabled: false
   # 파드 수
@@ -33,6 +34,18 @@ hashsplit:
   image:
     registry: ""
     repository: "library/kse-hashsplit"
-    tag: 0.0.3
-  sinkTopicA: hashsplit-sink-a
-  sinkTopicB: hashsplit-sink-b
+    tag: 0.0.4
+  sinkTopic: hashsplit-sink
+  sinkTopic2: hashsplit-sink2
+
+# multistr 예제 
+multistr:
+  enabled: false 
+  # 파드 수
+  replicas: 1
+  image:
+    registry: ""
+    repository: "library/kse-multistr"
+    tag: 0.0.4
+  sinkTopic: multistr-sink
+  sinkTopic2: multistr-sink2

@@ -1,6 +1,7 @@
 # Genlog
 {{- if .Values.producer.enabled }}
-{{- $topic := (include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) ) }}
+{{- $topic := .Values.kafka.srcTopic }}
+{{- $topic2 := .Values.kafka.srcTopic2 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -59,6 +60,43 @@ spec:
               sleep 5             
             fi
           done
+      {{- if $topic2 }}
+      - name: create-topic2
+        image: bitnami/kafka:latest
+        imagePullPolicy: IfNotPresent
+        command:
+        - bash 
+        - -c 
+        - |
+          sleep 10
+          while true; do
+            # wait for kafka to be ready
+            EXISTING_TOPICS=$(kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --list 2> /dev/null)
+            if [ $? -ne 0 ]; then
+              echo "Failed to fetch topic list. retrying..."
+              sleep 5
+              continue
+            fi
+
+            # check if topic already exists
+            if echo $EXISTING_TOPICS | grep -w "{{ $topic2 }}" > /dev/null; then
+              echo "Topic '{{ $topic2 }}' already exists."
+              exit 0
+            else
+              echo "Topic '{{ $topic2 }}' does not exist. creating..."
+            fi
+
+            # create topic
+            kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --create --topic {{ $topic2 }} 2> /dev/null
+            if [ $? -eq 0 ]; then
+              echo "Topic '{{ $topic2 }}' creation successful."
+              exit 0
+            else
+              echo "Topic creation failed, retrying..."
+              sleep 5             
+            fi
+          done
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}-producer
           image: '{{ include "kse.image" .Values.producer.image }}'
@@ -69,7 +107,7 @@ spec:
           - name: KAFKA_BROKER
             value: {{ .Release.Name }}-kafka-headless:9092
           - name: KAFKA_TOPIC
-            value: {{ include "kse.tplvalues.render" ( dict "value" .Values.kafka.srcTopic "context" $) }}
+            value: {{ .Values.kafka.srcTopic }}
           - name: PROD_TYPE
             value: {{ .Values.producer.type }}
       {{- with .Values.producer.nodeSelector }}

@@ -16,60 +16,52 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.github.haje01.kafka.streams.examples.HashSplitTopology;
-import com.github.haje01.kafka.streams.examples.serdes.JsonNodeSerde;
+import com.github.haje01.kafka.streams.examples.MultiStreamTopology;
 
 
-public class HashSplitTest {
+public class MultiStreamTest {
 
     private static String SOURCE_TOPIC = "source";
+    private static String SOURCE_TOPIC2 = "source2";
     private static String SINK_TOPIC = "sink";
     private static String SINK_TOPIC2 = "sink2";
 
-    private HashSplitTopology hashSplitTopology;
+    private MultiStreamTopology multiStreamTopology;
     private TopologyTestDriver testDriver;
-    private TestInputTopic<String, JsonNode> sourceTopic;
+    private TestInputTopic<String, String> sourceTopic;
+    private TestInputTopic<String, String> sourceTopic2;
     private TestOutputTopic<String, String> sinkTopic;
-    private TestOutputTopic<String, JsonNode> sinkTopic2;
-    private JsonNodeSerde jsonNodeSerde;
+    private TestOutputTopic<String, String> sinkTopic2;
 
     @BeforeEach
-    void setUp() throws NoSuchAlgorithmException {
+    void setUp() {
         // 설정
         var props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, "test");
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, "dummy:1234");
 
         // 토폴로지
-        hashSplitTopology = new HashSplitTopology(SOURCE_TOPIC, SINK_TOPIC, SINK_TOPIC2);
-        var topology = hashSplitTopology.createTopology();
+        multiStreamTopology = new MultiStreamTopology(SOURCE_TOPIC, SINK_TOPIC, SOURCE_TOPIC2, SINK_TOPIC2);
+        var topology = multiStreamTopology.createTopology();
         testDriver = new TopologyTestDriver(topology, props);
 
-        // Serde 와 토픽
-        jsonNodeSerde = new JsonNodeSerde();
+        // 토픽
         sourceTopic = testDriver.createInputTopic(
-            SOURCE_TOPIC, Serdes.String().serializer(), jsonNodeSerde.serializer());
+            SOURCE_TOPIC, Serdes.String().serializer(), Serdes.String().serializer());
+        sourceTopic2 = testDriver.createInputTopic(
+            SOURCE_TOPIC2, Serdes.String().serializer(), Serdes.String().serializer());
         sinkTopic = testDriver.createOutputTopic(
             SINK_TOPIC, Serdes.String().deserializer(), Serdes.String().deserializer());
         sinkTopic2 = testDriver.createOutputTopic(
-            SINK_TOPIC2, Serdes.String().deserializer(), jsonNodeSerde.deserializer());
+            SINK_TOPIC2, Serdes.String().deserializer(), Serdes.String().deserializer());
     } 
 
     @Test
-    @DisplayName("주어진 JSON 메시지에서 userIdHash + userId 및 userIdHash + 내용의 두 토픽으로 분리.")
+    @DisplayName("주어진 두 토픽을 각각 처리하여 두 싱크 토픽에 저장.")
     void testScenario1() {
-        // JSON 데이터
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode input = objectMapper.createObjectNode();
-        input.put("user_id", "user1");
-        input.put("message", "some chat message");
-        ObjectNode input2 = objectMapper.createObjectNode();
-        input2.put("user_id", "user2");
-        input2.put("message", "other chat message");
-
         // When
-        sourceTopic.pipeInput("user1", input);
-        sourceTopic.pipeInput("user2", input2);
+        sourceTopic.pipeInput("user1", "message 1");
+        sourceTopic2.pipeInput("user2", "message 2");
 
         // Then 
         var output = sinkTopic.readRecord();
@@ -78,10 +70,6 @@ public class HashSplitTest {
         System.out.println("key: " + key);
         System.out.println("value: " + value);
 
-        // Assertions
-        assertEquals("b3daa77b4c04", key);
-        assertEquals("user1", value);
-
         var output2 = sinkTopic2.readRecord();
         var key2 = output2.getKey();
         var value2 = output2.getValue();
@@ -89,10 +77,9 @@ public class HashSplitTest {
         System.out.println("value2: " + value2);
 
         // Assertions
-        assertEquals("b3daa77b4c04", key2);
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode root = mapper.createObjectNode();
-        root.put("message", "some chat message");
-        assertEquals(root, value2);
+        assertEquals("user1", key);
+        assertEquals("Processed (1) message 1", value);
+        assertEquals("user2", key2);
+        assertEquals("Processed (2) message 2", value2);
     }
 }
