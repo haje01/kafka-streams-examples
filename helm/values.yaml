@@ -11,7 +11,7 @@ producer:
   image:
     registry: ""
     repository: "library/kse-producer"
-    tag: 0.0.4
+    tag: 0.0.5
   # 로그 생성 타입
   type: default
 
@@ -23,7 +23,7 @@ filterkey:
   image:
     registry: ""
     repository: "library/kse-filterkey"
-    tag: 0.0.4
+    tag: 0.0.5
   sinkTopic: filterkey-sink
 
 # hashsplit 예제 
@@ -34,7 +34,7 @@ hashsplit:
   image:
     registry: ""
     repository: "library/kse-hashsplit"
-    tag: 0.0.4
+    tag: 0.0.5
   sinkTopic: hashsplit-sink
   sinkTopic2: hashsplit-sink2
 
@@ -46,6 +46,18 @@ multistr:
   image:
     registry: ""
     repository: "library/kse-multistr"
-    tag: 0.0.4
+    tag: 0.0.5
   sinkTopic: multistr-sink
   sinkTopic2: multistr-sink2
+
+# healthlog 예제 
+healthlog:
+  enabled: false 
+  # 파드 수
+  replicas: 1
+  image:
+    registry: ""
+    repository: "library/kse-healthlog"
+    tag: 0.0.5
+  sinkTopic: healthlog-sink
+  sinkTopic2: healthlog-sink2

@@ -15,11 +15,12 @@ helm/          # Helm 차트
 filterkey/     # 필터링 + 키지정 예제
 hashsplit/     # 해슁 + 스트림 분리 예제 
 multistr/      # 멀티 스트림 예제 
+healthlog/     # 헬스 체크 + 로깅 예제 
 producer/      # 가짜 로그 생성기
 skaffold.yaml  # Skaffold 설정 파일
 ```
 
-`filterkey`, `hashsplit`, `multistr` 이 각각 하나의 스트림즈 앱 예제이다. 
+`filterkey`, `hashsplit`, `multistr`, `healthlog` 가 각각 하나의 스트림즈 앱 예제이다. 
 
 > 앞으로 다음과 같은 스트림즈 예제가 추가될 수 있다.
 > - 스트림 - 스트림을 조인하는 `joinstrstr`
@@ -45,7 +46,7 @@ producer:
   image:
     registry: ""
     repository: "library/kse-producer"
-    tag: 0.0.4
+    tag: 0.0.5
   # 로그 생성 타입
   type: default
 
@@ -57,7 +58,7 @@ filterkey:
   image:
     registry: ""
     repository: "library/kse-filterkey"
-    tag: 0.0.4
+    tag: 0.0.5
   sinkTopic: filterkey-sink
 
 # hashsplit 예제 
@@ -68,7 +69,7 @@ hashsplit:
   image:
     registry: ""
     repository: "library/kse-hashsplit"
-    tag: 0.0.4
+    tag: 0.0.5
   sinkTopic: hashsplit-sink
   sinkTopic2: hashsplit-sink2
 
@@ -80,9 +81,21 @@ multistr:
   image:
     registry: ""
     repository: "library/kse-multistr"
-    tag: 0.0.4
+    tag: 0.0.5
   sinkTopic: multistr-sink
   sinkTopic2: multistr-sink2
+
+# healthlog 예제 
+healthlog:
+  enabled: false 
+  # 파드 수
+  replicas: 1
+  image:
+    registry: ""
+    repository: "library/kse-healthlog"
+    tag: 0.0.5
+  sinkTopic: healthlog-sink
+  sinkTopic2: healthlog-sink2
 ```
 
 ## 로그 생성기 (producer)
@@ -132,4 +145,13 @@ skaffold dev -p hashsplit
 개발용 실행 
 ```bash
 skaffold dev -p multistr
+```
+
+## 헬스 체크 및 로깅 (healthlog) 예제 
+
+쿠버네티스의 `livenessProbe` 를 위한 헬스 체크 서버 구현 및 slf4j 와 logback 을 이용한 로깅을 보여주는 예제이다.
+
+개발용 실행 
+```bash
+skaffold dev -p healthlog
 ```

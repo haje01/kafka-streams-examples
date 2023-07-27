@@ -1,0 +1,6 @@
+kafka: 
+  srcTopic: healthchk-src
+
+healthlog:
+  enabled: true
+  
