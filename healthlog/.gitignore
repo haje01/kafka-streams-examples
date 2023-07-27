@@ -1,14 +1,5 @@
-helm/charts/
-
 # Ignore Gradle project-specific cache directory
 .gradle
 
 # Ignore Gradle build output directory
 build
-
-.gitattributes
-.vscode
-helm/charts
-target/
-dependency-reduced-pom.xml
-pom.properties

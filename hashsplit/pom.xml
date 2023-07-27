@@ -6,7 +6,7 @@
 
     <groupId>com.github.haje01.kafka.streams.examples</groupId>
     <artifactId>kse-hashsplit</artifactId>
-    <version>0.0.3-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
     <build>
         <plugins>
             <plugin>
