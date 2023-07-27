@@ -23,13 +23,13 @@ public class HashSplitTopology {
     private static final int HASH_LENGTH = 12;
 
     public String sourceTopic;
-    public String sinkTopicA;
-    public String sinkTopicB;
+    public String sinkTopic;
+    public String sinkTopic2;
 
-    public HashSplitTopology(String sourceTopic, String sinkTopicA, String sinkTopicB) {
+    public HashSplitTopology(String sourceTopic, String sinkTopic, String sinkTopic2) {
         this.sourceTopic = sourceTopic;
-        this.sinkTopicA = sinkTopicA;
-        this.sinkTopicB = sinkTopicB;
+        this.sinkTopic = sinkTopic;
+        this.sinkTopic2 = sinkTopic2;
     }
 
     public Topology createTopology() throws NoSuchAlgorithmException {
@@ -39,21 +39,21 @@ public class HashSplitTopology {
             sourceTopic, Consumed.with(Serdes.String(), jsonNodeSerde));
         
         // 유저 ID 와 그것의 해쉬키로 구성된 스트림
-        KStream<String, String> topicA = sourceStream.map((userId, jsonNode) -> {
+        KStream<String, String> stream = sourceStream.map((userId, jsonNode) -> {
             String userIdHash = truncatedHash(userId, HASH_LENGTH);
             return KeyValue.pair(userIdHash, userId);
         });
 
         // 유저 ID 의 해쉬키와 나머지 필드로 구성된 스트림 
-        KStream<String, JsonNode> topicB = sourceStream.map((userId, jsonNode) -> {
+        KStream<String, JsonNode> stream2 = sourceStream.map((userId, jsonNode) -> {
             String userIdHash = truncatedHash(userId, HASH_LENGTH);
             // 유저 ID 필드 제거
             ((ObjectNode) jsonNode).remove("user_id");
             return KeyValue.pair(userIdHash, jsonNode);
         });
 
-        topicA.to(sinkTopicA, Produced.with(Serdes.String(), Serdes.String()));
-        topicB.to(sinkTopicB, Produced.with(Serdes.String(), jsonNodeSerde));
+        stream.to(sinkTopic, Produced.with(Serdes.String(), Serdes.String()));
+        stream2.to(sinkTopic2, Produced.with(Serdes.String(), jsonNodeSerde));
         return streamsBuilder.build();
     }
 
@@ -65,6 +65,6 @@ public class HashSplitTopology {
             return fullHash.substring(0, length);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("SHA-1 algorithm not available.");
-        }   
+        } 
     }
 }

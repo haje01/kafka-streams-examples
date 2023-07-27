@@ -1,21 +1,22 @@
-{{- if .Values.hashsplit.enabled }}
+{{- if .Values.multistr.enabled }}
 {{- $src_topic := .Values.kafka.srcTopic }}
-{{- $sink_topic := .Values.hashsplit.sinkTopic }}
-{{- $sink_topic2 := .Values.hashsplit.sinkTopic2 }}
+{{- $src_topic2 := .Values.kafka.srcTopic2 }}
+{{- $sink_topic := .Values.multistr.sinkTopic }}
+{{- $sink_topic2 := .Values.multistr.sinkTopic2 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "kse.fullname" . }}-hashsplit
+  name: {{ include "kse.fullname" . }}-multistr
   labels:
     {{- include "kse.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.hashsplit.replicas }}
+  replicas: {{ .Values.multistr.replicas }}
   selector:
     matchLabels:
       {{- include "kse.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.hashsplit.podAnnotations }}
+      {{- with .Values.multistr.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -56,64 +57,62 @@ spec:
               break
             else
               echo "Sink topic A '{{ $sink_topic }}' does not exist. creating..."
+              kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --create --topic {{ $sink_topic }} 2> /dev/null
+              if [ $? -eq 0 ]; then
+                echo "Sink topic A '{{ $sink_topic }}' creation successful."
+                break
+              else
+                echo "Sink topic A creation failed, retrying..."
+                sleep 5             
+              fi            
             fi
-
-            # create topic
-            kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --create --topic {{ $sink_topic }} 2> /dev/null
-            if [ $? -eq 0 ]; then
-              echo "Sink topic A '{{ $sink_topic }}' creation successful."
-              break
-            else
-              echo "Sink topic A creation failed, retrying..."
-              sleep 5             
-            fi            
           done
 
-          # Create sink 2 topic if not exists
+          # Create sink topic 2 if not exists
           while true; do
             EXISTING_TOPICS=$(kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --list 2> /dev/null)
             # check if sink topic already exists
             if echo $EXISTING_TOPICS | grep -w "{{ $sink_topic2 }}" > /dev/null; then
-              echo "Sink topic 2 '{{ $sink_topic2 }}' already exists."
-              exit 0
+              echo "Sink topic A '{{ $sink_topic2 }}' already exists."
+              break
             else
-              echo "Sink topic 2 '{{ $sink_topic2 }}' does not exist. creating..."
+              echo "Sink topic A '{{ $sink_topic2 }}' does not exist. creating..."
+              kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --create --topic {{ $sink_topic2 }} 2> /dev/null
+              if [ $? -eq 0 ]; then
+                echo "Sink topic A '{{ $sink_topic2 }}' creation successful."
+                break
+              else
+                echo "Sink topic A creation failed, retrying..."
+                sleep 5             
+              fi            
             fi
-
-            # create topic
-            kafka-topics.sh --bootstrap-server {{ .Release.Name }}-kafka-headless:9092 --create --topic {{ $sink_topic2 }} 2> /dev/null
-            if [ $? -eq 0 ]; then
-              echo "Sink topic B '{{ $sink_topic2 }}' creation successful."
-              exit 0
-            else
-              echo "Sink topic B creation failed, retrying..."
-              sleep 5             
-            fi            
           done
       containers:
-        - name: {{ .Chart.Name }}-hashsplit
-          image: '{{ include "kse.image" .Values.hashsplit.image }}'
+        - name: {{ .Chart.Name }}-multistr
+          image: '{{ include "kse.image" .Values.multistr.image }}'
           imagePullPolicy: IfNotPresent
           env:
           - name: KAFKA_BROKER
             value: {{ .Release.Name }}-kafka-headless:9092
           - name: KAFKA_SOURCE_TOPIC
             value: {{ .Values.kafka.srcTopic }}
+          - name: KAFKA_SOURCE_TOPIC2
+            value: {{ .Values.kafka.srcTopic2 }}
           - name: KAFKA_SINK_TOPIC
-            value: {{ .Values.hashsplit.sinkTopic }}
+            value: {{ .Values.multistr.sinkTopic }}
           - name: KAFKA_SINK_TOPIC2
-            value: {{ .Values.hashsplit.sinkTopic2 }}
+            value: {{ .Values.multistr.sinkTopic2 }}
           resources:
-            {{- toYaml .Values.hashsplit.resources | nindent 12 }}
-      {{- with .Values.hashsplit.nodeSelector }}
+            {{- toYaml .Values.multistr.resources | nindent 12 }}
+      {{- with .Values.multistr.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.hashsplit.affinity }}
+      {{- with .Values.multistr.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.hashsplit.tolerations }}
+      {{- with .Values.multistr.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}

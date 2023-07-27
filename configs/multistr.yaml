@@ -1,0 +1,10 @@
+kafka: 
+  srcTopic: multistr-src
+  srcTopic2: multistr-src2
+
+producer:
+  type: multistr
+  
+multistr:
+  enabled: true
+  

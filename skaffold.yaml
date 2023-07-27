@@ -9,6 +9,8 @@ build:
     context: filterkey
   - image: kse-hashsplit
     context: hashsplit
+  - image: kse-multistr
+    context: multistr
 
 deploy:
   # Kafka 브로커 안정화될 때가지 몇 번의 에러가 발생하기에 실패를 허용하고, 데드라인까지 기다림
@@ -28,6 +30,9 @@ deploy:
         hashsplit.image.registry: '{{ .IMAGE_DOMAIN_kse_hashsplit }}'
         hashsplit.image.repository: '{{ .IMAGE_REPO_NO_DOMAIN_kse_hashsplit }}'
         hashsplit.image.tag: '{{ .IMAGE_TAG_kse_hashsplit }}'
+        multistr.image.registry: '{{ .IMAGE_DOMAIN_kse_multistr }}'
+        multistr.image.repository: '{{ .IMAGE_REPO_NO_DOMAIN_kse_multistr }}'
+        multistr.image.tag: '{{ .IMAGE_TAG_kse_multistr }}'
 
 profiles:
 - name: filterkey 
@@ -42,6 +47,12 @@ profiles:
     path: /deploy/helm/releases/0/valuesFiles 
     value: 
     - configs/hashsplit.yaml
+- name: multistr 
+  patches: 
+  - op: add 
+    path: /deploy/helm/releases/0/valuesFiles 
+    value: 
+    - configs/multistr.yaml
 
   
   

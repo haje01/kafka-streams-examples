@@ -1,2 +1,5 @@
+kafka: 
+  srcTopic: hashsplit-src
+  
 hashsplit: 
   enabled: true 
