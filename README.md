@@ -14,11 +14,12 @@ configs/       # 프로파일별 설정 파일들
 helm/          # Helm 차트
 filterkey/     # 필터링 + 키지정 예제
 hashsplit/     # 해슁 + 스트림 분리 예제 
+multistr/      # 멀티 스트림 예제 
 producer/      # 가짜 로그 생성기
 skaffold.yaml  # Skaffold 설정 파일
 ```
 
-`filterkey` 와 `hashsplit` 이 각각 하나의 스트림즈 앱 예제이다. 
+`filterkey`, `hashsplit`, `multistr` 이 각각 하나의 스트림즈 앱 예제이다. 
 
 > 앞으로 다음과 같은 스트림즈 예제가 추가될 수 있다.
 > - 스트림 - 스트림을 조인하는 `joinstrstr`
@@ -36,7 +37,7 @@ kafka:
   # 토픽 기본 파티션 수
   numPartitions: 2
   srcTopic: default-src
-  sinkTopic: default-sink
+  srcTopic2: ""
 
 # 로그 생성기 설정
 producer:
@@ -44,28 +45,44 @@ producer:
   image:
     registry: ""
     repository: "library/kse-producer"
-    tag: 0.0.3
+    tag: 0.0.4
   # 로그 생성 타입
-  type: none
+  type: default
 
-# filterkey 예제 설정 
+# filterkey 예제 
 filterkey:
+  enabled: false
   # 파드 수
   replicas: 2
   image:
     registry: ""
     repository: "library/kse-filterkey"
-    tag: 0.0.3
+    tag: 0.0.4
+  sinkTopic: filterkey-sink
 
-# hashsplit 예제 설정 
+# hashsplit 예제 
 hashsplit:
+  enabled: false
   # 파드 수
   replicas: 1
   image:
     registry: ""
     repository: "library/kse-hashsplit"
-    tag: 0.0.3
+    tag: 0.0.4
+  sinkTopic: hashsplit-sink
+  sinkTopic2: hashsplit-sink2
 
+# multistr 예제 
+multistr:
+  enabled: false 
+  # 파드 수
+  replicas: 1
+  image:
+    registry: ""
+    repository: "library/kse-multistr"
+    tag: 0.0.4
+  sinkTopic: multistr-sink
+  sinkTopic2: multistr-sink2
 ```
 
 ## 로그 생성기 (producer)
@@ -93,3 +110,26 @@ skaffold dev -p filterkey
 ```
 
 producer 의 로그에 남은 `Errors` 수와, 싱크 토픽 (`filterkey-sink`) 의 메시지 수가 일치하면 성공한 것이다.
+
+## 카를 해슁하고 두 스트림으로 나누는 (hashsplit) 예제
+
+개인 정보 보호 등의 이유로 하나의 스트림에서 키 정보를 해슁하여 다음의 두 스트림을 나누는 예제이다.
+- 스트림 A: 유저 ID 해쉬, 유저 ID
+- 스트림 B: 유저 ID 해쉬, 메시지 본문 
+
+개발용 실행 
+```bash
+skaffold dev -p hashsplit
+```
+
+## 멀티 스트림 (multistr) 예제
+
+- 하나의 Kafka Streams 앱에서 두 개의 소스 스트림을 읽어와 각각의 싱크 스트림에 저장하는 예제
+- 예제는 처리하는 과정이 비슷하기에 하나의 토폴로지를 이용하여 구현했다.
+- 만약 처리과정이 다른 경우라면 토폴로지를 나누어서 이용하는 것이 바람직하다.
+- 각 토폴로지별로 App ID 가 부여되고, 그것은 컨슈머 그룹 ID 로 사용되기에 체크 포인팅을 공유한다.
+
+개발용 실행 
+```bash
+skaffold dev -p multistr
+```
